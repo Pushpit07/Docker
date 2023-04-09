@@ -54,7 +54,7 @@ class Fib extends Component {
 
 	render() {
 		return (
-			<div>
+			<div style={{ marginTop: "40px" }}>
 				<form onSubmit={this.handleSubmit}>
 					<label>Enter your index:</label>
 					<input value={this.state.index} onChange={(event) => this.setState({ index: event.target.value })} />
