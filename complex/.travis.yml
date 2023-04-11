@@ -1,0 +1,27 @@
+sudo: required
+language: generic
+services:
+    - docker
+
+before_install:
+    - docker build -t pushpit07/react-test -f ./client/Dockerfile.dev ./client
+
+script:
+    - docker run -e CI=true pushpit07/react-test npm run test
+
+after_success:
+    - docker build -t pushpit07/multi-client ./client
+    - docker build -t pushpit07/multi-nginx ./nginx
+    - docker build -t pushpit07/multi-server ./server
+    - docker build -t pushpit07/multi-worker ./worker
+# deploy:
+#     provider: elasticbeanstalk
+#     region: "us-west-2"
+#     app: "docker-react"
+#     env: "Docker-env"
+#     bucket_name: "elasticbeanstalk-us-west-2-306723636626"
+#     bucket_path: "docker-react"
+#     on:
+#         branch: main
+#     access_key_id: $AWS_ACCESS_KEY
+#     secret_access_key: "$AWS_SECRET_KEY"
