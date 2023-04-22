@@ -1,0 +1,35 @@
+sudo: required
+language: generic
+services:
+    - docker
+
+before_install:
+    - docker build -t pushpit07/react-test -f ./client/Dockerfile.dev ./client
+
+script:
+    - docker run -e CI=true pushpit07/react-test npm run test
+
+after_success:
+    - docker build -t pushpit07/multi-client ./client
+    - docker build -t pushpit07/multi-nginx ./nginx
+    - docker build -t pushpit07/multi-server ./server
+    - docker build -t pushpit07/multi-worker ./worker
+    # Log in to the docker CLI
+    - docker logout
+    - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin
+    # Take those images and push them to docker hub
+    - docker push pushpit07/multi-client
+    - docker push pushpit07/multi-nginx
+    - docker push pushpit07/multi-server
+    - docker push pushpit07/multi-worker
+# deploy:
+#     provider: elasticbeanstalk
+#     region: "us-west-1"
+#     app: "multi-docker"
+#     env: "MultiDocker-env"
+#     bucket_name: "elasticbeanstalk-us-west-2-306723636626"
+#     bucket_path: "docker-multi"
+#     on:
+#         branch: main
+#     access_key_id: $AWS_ACCESS_KEY
+#     secret_access_key: $AWS_SECRET_KEY
